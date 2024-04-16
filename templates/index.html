@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Ingredient Images</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Upload Ingredient Images</h1>
+        <form id="uploadForm" enctype="multipart/form-data" action="/detect_ingredients" method="post">
+            <input type="file" name="image" id="fileInput" accept=".png, .jpg, .jpeg" multiple>
+            <button type="submit" class="btn btn-primary" id="detectButton" disabled>Detect Ingredients</button>
+        </form>
+
+        <div id="loading" style="display: none;">Loading...</div>
+
+        <div id="results"></div>
+
+        <script>
+            document.getElementById('fileInput').addEventListener('change', function() {
+                var button = document.getElementById('detectButton');
+                button.disabled = false;
+            });
+        </script>
+    </div>
+</body>
+</html>

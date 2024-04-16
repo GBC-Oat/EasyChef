@@ -1,60 +1,54 @@
-import os
-from flask import redirect, render_template, url_for
-from werkzeug.utils import secure_filename
+import logging
+from flask import render_template, request, jsonify, session
+import requests
 
-UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-DETECTION_API_URL = 'http://your-backend-api-url/detect'
-REMOVAL_API_URL = 'http://your-backend-api-url/remove'
-RECIPE_API_URL = 'http://your-backend-api-url/find_recipe'
+INGREDIENTS_DETECTION_API_URL = 'http://138.197.140.119:8000/detect/'
+RECIPE_API_URL = 'http://138.197.140.119:8000/find_recipe/'
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+TEMP = []
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def upload_file(request):
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            return redirect(url_for('detect', filename=filename))
+def detect_objects():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image part"}), 400
+    
+    uploaded_file = request.files['image']
 
-def detect_objects(filename):
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    files = {'file': open(filepath, 'rb')}
-    response = requests.post(DETECTION_API_URL, files=files)
-    if response.status_code == 200:
-        # Assuming the response contains a list of detected ingredients
-        ingredients = response.json()['ingredients']
-        return render_template('list_ingredients.html', ingredients=ingredients)
+    if uploaded_file and allowed_file(uploaded_file.filename):
+        files = {'image': (uploaded_file.filename, uploaded_file.read())}
+        logger.info(f"Sending request to {INGREDIENTS_DETECTION_API_URL} with files: {files}")
+        response = requests.post(INGREDIENTS_DETECTION_API_URL, files=files)
+
+        if response.status_code == 200:
+            detected_ingredients = response.json().get('detected_labels', [])
+            session['detected_ingredients'] = detected_ingredients
+            logger.info(f"Received response: {response.json()}")
+            return render_template('list_ingredients.html', detected_ingredients=detected_ingredients)
+        else:
+            logger.error(f"Error processing object detection. Status code: {response.status_code}")
+            return "Error processing object detection", response.status_code
     else:
-        return "Error processing object detection"
-
-def remove_unwanted():
-    # Placeholder for removing unwanted ingredients using API
-    # This is where you would call your backend API to remove unwanted ingredients
-    response = requests.post(REMOVAL_API_URL, json={'unwanted': ['ingredient1', 'ingredient2']})
-    if response.status_code == 200:
-        # Assuming the response contains updated list of ingredients after removal
-        ingredients = response.json()['ingredients']
-        return render_template('list_ingredients.html', ingredients=ingredients)
-    else:
-        return "Error removing unwanted ingredients"
+        logger.error("Invalid file format")
+        return "Invalid file format", 400
 
 
 def find_recipe():
-    # Placeholder for finding recipe based on ingredients list using API
-    # This is where you would call your backend API to match ingredients with recipes
-    response = requests.post(RECIPE_API_URL, json={'ingredients': ['ingredient1', 'ingredient2']})
+    detected_ingredients = session.get('detected_ingredients', [])
+    logger.info(f"Sending request to {RECIPE_API_URL} with ingredients: {detected_ingredients}")
+
+    response = requests.post(RECIPE_API_URL, json={'ingredients': detected_ingredients})
+
     if response.status_code == 200:
-        # Assuming the response contains matched recipe details
-        recipe = response.json()['recipe']
-        return render_template('show_recipe.html', recipe=recipe)
+        suggested_recipes = response.json().get('recipe', [])
+        logger.info(f"Received response: {response.status_code}, Suggested recipes: {suggested_recipes}")
+        return render_template('result_recipe.html', suggested_recipes=suggested_recipes)
     else:
+        logger.error(f"Error finding recipe. Status code: {response.status_code}")
         return "Error finding recipe"

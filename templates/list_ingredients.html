@@ -3,18 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List Ingredients</title>
-    <!-- Link to Bootstrap CSS -->
+    <title>Detected Ingredients</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <h1 class="mt-5">List Ingredients</h1>
-        <!-- Ingredients list goes here -->
-        <form action="/remove_unwanted" method="post">
-            <!-- Placeholder for ingredients list -->
-            <button type="submit" class="btn btn-primary">Find Recipe</button>
-        </form>
+        <div id="loading" style="display: none;">Loading...</div>
+        <div id="results">
+            <ul>
+                {% for ingredient in detected_ingredients %}
+                    <li>{{ ingredient }}</li>
+                {% endfor %}
+            </ul>
+            <form action="/find_recipe" method="post">
+                <button type="submit" class="btn btn-primary">Suggest Recipe</button>
+            </form>
+
+            <script>
+                var detectedIngredients = "{{ detected_ingredients|join(',') }}";
+                document.getElementById("detectedIngredients").value = detectedIngredients;
+            </script>
+        </div>
     </div>
 </body>
 </html>

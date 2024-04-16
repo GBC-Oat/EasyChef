@@ -1,23 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for
-from helper import upload_file, detect_objects, remove_unwanted, find_recipe
+from flask import Flask, render_template
+from helper import detect_objects, find_recipe
+from os import environ
+import secrets
 
 app = Flask(__name__)
 
+app.secret_key = environ.get('SECRET_KEY') or secrets.token_hex(16)
+
 @app.route('/')
 def index():
-    return render_template('upload.html')
+    return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    return upload_file(request)
-
-@app.route('/detect_objects/<filename>')
-def detect(filename):
-    return detect_objects(filename)
-
-@app.route('/remove_unwanted', methods=['POST'])
-def remove():
-    return remove_unwanted()
+@app.route('/detect_ingredients', methods=['POST'])
+def detect_ingredients():
+    return detect_objects()
 
 @app.route('/find_recipe', methods=['POST'])
 def find():

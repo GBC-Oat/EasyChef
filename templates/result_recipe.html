@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Matcher Results</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Suggested Recipes</h1>
+        <ul class="list-group mt-3">
+            {% for recipe in suggested_recipes %}
+            <li class="list-group-item">
+                <h2>{{ recipe.name }}</h2>
+                <p>
+                    <ul>
+                        {% for ingredient in recipe.ingredients %}
+                            <li>{{ ingredient }}</li>
+                        {% endfor %}
+                    </ul>
+                </p>
+                <p>Instructions: {{ recipe.instructions }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="/" class="btn btn-primary mt-3">Home</a>
+    </div>
+</body>
+</html>
