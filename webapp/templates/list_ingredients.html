@@ -17,7 +17,12 @@
                 {% endfor %}
             </ul>
             <form action="/find_recipe" method="post">
-                <button type="submit" class="btn btn-primary">Suggest Recipe</button>
+                {% if detected_ingredients %}
+                    <button type="submit" class="btn btn-primary">Suggest Recipe</button>
+                {% else %}
+                    <button type="button" class="btn btn-primary" disabled>Suggest Recipe</button>
+                {% endif %}
+                <a href="/" class="btn btn-primary">Home</a>
             </form>
 
             <script>
