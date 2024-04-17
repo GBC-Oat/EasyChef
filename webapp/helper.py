@@ -29,7 +29,7 @@ def detect_objects():
 
         image_stream = BytesIO(uploaded_file.read())
 
-        if uploaded_file.filename.lower().endswith('.heic', '.heif'):
+        if uploaded_file.filename.lower().endswith(('.heic', '.heif')):
             # Decode the HEIC image
             heic_image = read_heif(image_stream)
             
