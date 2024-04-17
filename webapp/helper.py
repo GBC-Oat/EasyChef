@@ -21,6 +21,7 @@ def detect_objects():
         return jsonify({"error": "No image part"}), 400
     
     uploaded_file = request.files['image']
+    selected_model = request.form['model'] # Retrieve the selected model
 
     if uploaded_file.filename == '':
         return "No selected file", 400
@@ -52,9 +53,10 @@ def detect_objects():
 
         # Create files dictionary
         files = {'image': (uploaded_file.filename, img_bytes.getvalue())}
+        data = {'model': selected_model} 
 
-        logger.info(f"Sending request to {INGREDIENTS_DETECTION_API_URL} with image: {uploaded_file.filename}")
-        response = requests.post(INGREDIENTS_DETECTION_API_URL, files=files)
+        logger.info(f"Sending request to {INGREDIENTS_DETECTION_API_URL} with image: {uploaded_file.filename} and model: {selected_model}")
+        response = requests.post(INGREDIENTS_DETECTION_API_URL, files=files, data=data)
 
         if response.status_code == 200:
             detected_ingredients = response.json().get('detected_ingredients', [])
@@ -80,6 +82,9 @@ def find_recipe():
     if response.status_code == 200:
         suggested_recipes = response.json().get('recipe', [])
         logger.info(f"Received response: {response.status_code}, Suggested recipes: {suggested_recipes}")
+        if not suggested_recipes:
+            return "No recipe matched the detected ingredients. Please try again."
+
         return render_template('result_recipe.html', suggested_recipes=suggested_recipes)
     else:
         logger.error(f"Error finding recipe. Status code: {response.status_code}")
