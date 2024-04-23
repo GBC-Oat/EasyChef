@@ -17,3 +17,7 @@ Many people struggle with meal planning while shopping, leading to frustration a
 
 ### Significance
 To address this challenge, we aim to offer a solution that simplifies meal planning and enhances the overall shopping experience. By leveraging AI technology to provide personalized recipe suggestions based on customer preferences and available ingredients, we seek to transform the way customers shop for groceries. This innovative approach not only streamlines the meal planning process but also enriches the shopping experience, ultimately leading to greater enjoyment and satisfaction for customers.
+
+## Dataset Reference
+*   [Ingredient classification](https://universe.roboflow.com/tf-cpeu2/ingredient-classification)
+*   [Food Ingredients and Recipes Dataset with Images](https://www.kaggle.com/datasets/pes12017000148/food-ingredients-and-recipe-dataset-with-images)
